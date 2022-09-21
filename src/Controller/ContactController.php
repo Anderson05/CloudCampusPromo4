@@ -11,8 +11,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\EntityListener\EntityListener;
 use App\Event\ContactEvent;
+use App\Messenger\ContactMessage;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
+
 
 #[Route('/contact')]
 class ContactController extends AbstractController
@@ -25,13 +28,21 @@ class ContactController extends AbstractController
 
 
     /**
+     * @var MessageBusInterface
+    //  */
+    private $messageBus;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
 
-    public function __construct(EventDispatcherInterface $evtDispatcher, LoggerInterface $loggerIf){
+    public function __construct(EventDispatcherInterface $evtDispatcher, 
+            MessageBusInterface $msgBusIf,
+            LoggerInterface $loggerIf){
         $this->dispatcher = $evtDispatcher;
-        $this->logger = $loggerIf;
+        // $this->logger = $loggerIf;
+        $this->messageBus = $msgBusIf;
     }
 
     #[Route('/', name: 'app_contact_index', methods: ['GET'])]
@@ -57,7 +68,11 @@ class ContactController extends AbstractController
             $contactEvt = new ContactEvent($contact);
             $this->dispatcher->dispatch($contactEvt);
 
-            $msg = sprintf("PROMO4-LOGGER : EVENT NEW CONTACT [%s - %s] ------- ", $contact->getName(), $contact->getEmail());
+            // Declaration du message de type asynchrone
+            $contactMessage = new ContactMessage($contact->getId());
+            $this->messageBus->dispatch($contactMessage);
+
+            $msg = sprintf("PROMO4-LOGGER : MESSAGE NEW CONTACT [%s - %s] ------- ", $contact->getName(), $contact->getEmail());
             // var_dump($msg);
             $this->logger->info($msg);
             // die;
@@ -74,9 +89,11 @@ class ContactController extends AbstractController
     #[Route('/{id}', name: 'app_contact_show', methods: ['GET'])]
     public function show(Contact $contact): Response
     {
-        // dd($contact);
-        $contactEvt = new ContactEvent($contact);
-        $this->dispatcher->dispatch($contactEvt);
+        // Declaration du message de type asynchrone
+        $contactMessage = new ContactMessage($contact->getId()); $contactEvt = new ContactEvent($contact);
+        // dd($contactMessage);
+        $this->messageBus->dispatch($contactMessage);
+
         return $this->render('contact/show.html.twig', [
             'contact' => $contact,
         ]);
@@ -93,7 +110,6 @@ class ContactController extends AbstractController
     
         if ($form->isSubmitted() && $form->isValid()) {
             $contactRepository->add($contact, true);
-
             // dd($this->dispatcher);
             $contactEvt = new ContactEvent($contact);
             $this->dispatcher->dispatch($contactEvt);
