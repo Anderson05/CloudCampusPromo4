@@ -1,6 +1,6 @@
 <?php
 
-namespace App\EventSubscriber;
+namespace App\EventSubsscriber;
 
 use App\Event\ContactEvent;
 use Psr\Log\LoggerInterface;

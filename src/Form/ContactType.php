@@ -11,7 +11,7 @@ class ContactType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $bui lder
+        $builder
             ->add('name')
             ->add('email')
             ->add('status')

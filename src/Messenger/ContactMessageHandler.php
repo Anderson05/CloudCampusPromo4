@@ -4,9 +4,13 @@ namespace App\Messenger;
 
 use App\Entity\Contact;
 use Doctrine\ORM\EntityManagerInterface;
+use ErrorException;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\Messenger\MessageHandler;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+
+use function PHPUnit\Framework\throwException;
 
 class ContactMessageHandler implements MessageHandlerInterface {
 
@@ -29,6 +33,7 @@ class ContactMessageHandler implements MessageHandlerInterface {
 
 
     public function validerContact(Contact $contact){
+        throw new ErrorException("Erreur de Test - TPROMO4CC");
         sleep(10);
         $this->logger->info("TPROMO4-CC Async Manager --- ");
         $contact->setStatus(100);
