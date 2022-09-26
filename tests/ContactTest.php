@@ -11,7 +11,9 @@ class ContactTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testStatutPositif(int $status){
+    public function testStatutPositif():void {
+        $status = 5;
         $this->assertTrue($status > 0, "Statut Positif...");
     }
+
 }

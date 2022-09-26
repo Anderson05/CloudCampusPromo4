@@ -7,7 +7,7 @@ use App\Repository\ContactRepository;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class ContactControllerTest extends WebTestCase
+class ContactControllerTest //extends WebTestCase
 {
     private KernelBrowser $client;
     private ContactRepository $repository;
